@@ -17,9 +17,7 @@ def generate_launch_description():
     )
 
     rplidar_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            str(package_path / "launch/rplidar.launch.py")
-        ),
+        PythonLaunchDescriptionSource(str(package_path / "launch/rplidar.launch.py")),
     )
 
     footprint_static_tf_node = Node(
@@ -68,13 +66,31 @@ def generate_launch_description():
         ],
     )
 
+    lidar_node = Node(
+        name="rplidar_composition",
+        package="rplidar_ros",
+        executable="rplidar_composition",
+        output="screen",
+        parameters=[
+            {
+                "serial_port": "/dev/ttyUSB0",
+                "serial_baudrate": 115200,  # A1 / A2
+                # 'serial_baudrate': 256000, # A3
+                "frame_id": "lidar_link",
+                "inverted": False,
+                "angle_compensate": True,
+            }
+        ],
+    )
+
     driver_node = Node(package="r3030_control", executable="driver_interface")
 
     return LaunchDescription(
         [
             sim_time_arg,
+            lidar_node,
             driver_node,
-            rplidar_launch,
+            # rplidar_launch,
             footprint_static_tf_node,
             lidar_static_tf_node,
         ]
